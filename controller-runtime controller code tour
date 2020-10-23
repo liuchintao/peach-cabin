@@ -1,0 +1,26 @@
+# controller-runtime controller code tour
+
+本文档基于 controller-runtimev0.7.0-alpha.4-2-g74fd294a，仅作为参考，请结合您所用的版本食用。^_^
+
+## 配置一个 controller
+
+使用 controller-runtime 构造一个自定义的 controller 免不了需要经历下面这段代码，
+那么代码中的 `Own, For, Watches, WithEventFilter, Complete` 又都是什么意思呢？
+这里先在注释中简单标明各个方法的含义：
+
+```golang
+// ...
+ctrl.NewControllerManagedBy(mgr).
+    // 你的 controller 叫什么
+		Named("controller").
+    // 你的 controller 管什么
+    Own(yourGVK).
+    // 你的 controller 管的资源下面有什么子资源，且需要去监控它的状态
+		For(yourGVK).
+    // 你的 controller 还需要去关心什么资源的状态变化
+		Watches(&source.Kind{Type: &corev1.Pod{}}, watchEventHandlerMaker()).
+    // 你的 controller 需要响应的所关注资源相关的事件类型
+		WithEventFilter(predicate.Funcs{}).
+		Complete(r)
+// ...
+```
